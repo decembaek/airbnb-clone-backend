@@ -1,0 +1,42 @@
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import User
+
+
+# Register your models here.
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    fieldsets = (
+        (
+            "Profile",
+            {
+                "fields": ("username", "password", "name", "email", "is_host"),
+            },
+        ),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                ),
+                "classes": ("collapse",),  # 숨기기 기능 추가
+            },
+        ),
+        (
+            "Important dates",
+            {
+                "fields": ("last_login", "date_joined"),
+            },
+        ),
+    )
+
+    list_display = (
+        "username",
+        "email",
+        "name",
+        "is_host",
+    )

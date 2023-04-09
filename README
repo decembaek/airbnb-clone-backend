@@ -1,0 +1,10 @@
+poetry 설치 후 
+poetry 란 버전관리, 가상환경 툴 같은것
+poetry.lock, pyproject.tml 파일이 생성됨
+
+
+poetry init 
+
+poetry add django 장고 추가 
+
+poetry shell 입력하면 가상환경 진입
