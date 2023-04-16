@@ -30,8 +30,14 @@ ALLOWED_HOSTS = []
 
 # Application definition
 CUSTOM_APPS = [
-    "houses.apps.HousesConfig",
+    "common.apps.CommonConfig",
+    "rooms.apps.RoomsConfig",
     "users.apps.UsersConfig",
+    "experiences.apps.ExperiencesConfig",
+    "categories.apps.CategoriesConfig",
+    "reviews.apps.ReviewsConfig",
+    "wishlists.apps.WishlistsConfig",
+    "bookings.apps.BookingsConfig",
 ]
 
 SYSTEM_APPS = [
