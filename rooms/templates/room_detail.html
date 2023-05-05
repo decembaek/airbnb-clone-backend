@@ -1,0 +1,11 @@
+{% if not not_page%}
+<h1>{{room.name}}</h1>
+<p>{{room.description}}</p>
+<p>{{room.price}}</p>
+<p>{{room.address}}</p>
+<p>{{room.city}}</p>
+<p>{{room.country}}</p>
+<p>{{room.owner}}</p>
+{% else %}
+<h1>404 Page Not Found T.T</h1>
+{% endif %}
