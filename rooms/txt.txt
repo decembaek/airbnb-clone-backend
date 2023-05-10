@@ -1,0 +1,11 @@
+    {"name": "HOUSE HI DJANGO",
+    "country": "한국",
+    "city": "Seoul",
+    "price": 50000,
+    "rooms": 1,
+    "toilets": 1,
+    "description": "qqwafkdkf",
+    "category": 2,
+    "address": "1232",
+    "pet_friendly": true,
+    "kind": "private_room"}
