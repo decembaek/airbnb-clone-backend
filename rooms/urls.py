@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views_1044
 
 urlpatterns = [
     path("", views.Rooms.as_view()),
