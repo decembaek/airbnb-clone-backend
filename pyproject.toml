@@ -15,6 +15,7 @@ pylint-django = "^2.5.3"
 djangorestframework = "^3.14.0"
 markdown = "^3.4.3"
 django-filter = "^23.2"
+black = "^23.7.0"
 
 
 [tool.poetry.group.dev.dependencies]

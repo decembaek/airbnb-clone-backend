@@ -13,10 +13,12 @@ from categories.serializers import CategorySerializer
 class AmenitySerializer(ModelSerializer):
     class Meta:
         model = Amenity
-        fields = (
-            "name",
-            "description",
-        )
+        fields = "__all__"
+        # fields = (
+        #     # "name",
+        #     # "description",
+        #     "__all__",
+        # )
 
 
 class RoomDetailSerializer(ModelSerializer):
