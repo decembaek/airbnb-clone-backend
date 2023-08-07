@@ -48,3 +48,8 @@ class PerkDetail(APIView):
         perk = self.get_object(pk)
         perk.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class Rooms(APIView):
+    def get(self, request):
+        pass
