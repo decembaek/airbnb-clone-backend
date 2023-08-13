@@ -6,7 +6,8 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Amenity, Room
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 
-#/api/v1/rooms/amenities
+
+# /api/v1/rooms/amenities
 
 class Amenities(APIView):
 
@@ -22,6 +23,7 @@ class Amenities(APIView):
             return Response(AmenitySerializer(amenity).data)
         else:
             return Response(serializer.errors)
+
 
 class AmenitiesDetail(APIView):
     def get_object(self, pk):
@@ -82,4 +84,3 @@ class RoomDetail(APIView):
         room = self.get_object(pk)
         serializer = RoomDetailSerializer(room)
         return Response(serializer.data)
-
