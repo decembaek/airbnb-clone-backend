@@ -1,12 +1,14 @@
 {
-    "name": "post study",
-    "country": "Korea",
+    "name": "post studyTest",
+    "country": "KoreaTest",
     "city": "Seoul",
     "price": 43000,
     "rooms": 1,
     "toilets": 1,
-    "description": "haha",
-    "address": "123",
+    "description": "haha4",
+    "address": "1234",
     "pet_friendly": true,
-    "kind": "private_room"
+    "kind": "private_room",
+    "category" : 2,
+    "amenities" : [1, 2]
 }
