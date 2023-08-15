@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 
 from categories.models import Category
+from reviews.serializers import ReviewSerializer
 from .models import Amenity, Room
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 
@@ -182,3 +183,31 @@ class RoomDetail(APIView):
             raise PermissionDenied  # 권한이 없다라고 에러띄움
         room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class RoomReviews(APIView):
+    def get_object(self, pk):
+        try:
+            room = Room.objects.get(pk=pk)
+            return room
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        try:
+            page = request.query_params.get("page", 1)  # ?page=3   <- 이 값을 받음
+            page = int(page)
+        except ValueError:
+            page = 1
+        page_size = 3
+        start = (page - 1) * page_size
+        end = start + page_size
+        room = self.get_object(pk=pk)
+
+        # 모든 데이터를 불러오고 인덱스로 자르는게 아닌 인덱스도 같이 요청을 보내 DB 요청이 안정화됌
+        reviews = room.reviews.all()[start:end]  # model.py related_name 참조
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+
+# 리뷰말고 amenity 도 따로 개발하기 room/id/amenities
