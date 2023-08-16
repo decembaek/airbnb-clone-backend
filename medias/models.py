@@ -5,7 +5,8 @@ from common.models import CommonModel
 
 
 class Photo(CommonModel):
-    file = models.ImageField()
+    # file = models.ImageField()  # 파일 보안상 다른 서버에서 파일 URL 받는게 안전함
+    file = models.URLField()
     description = models.CharField(
         max_length=140,
     )
@@ -27,7 +28,8 @@ class Photo(CommonModel):
 
 
 class Video(CommonModel):
-    file = models.FileField()
+    # file = models.FileField()  # 파일 보안상 다른 서버에서 파일 URL 받는게 안전함
+    file = models.URLField()
     experience = models.OneToOneField(
         "experiences.Experience",
         on_delete=models.CASCADE,

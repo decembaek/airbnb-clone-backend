@@ -1,4 +1,5 @@
 from django.db import transaction  # 모든 변경사항 중 1개 실패하면 전체 되돌리기
+from django.conf import settings  # Django settings.py 가져오기
 
 from rest_framework.views import APIView
 from rest_framework.exceptions import (
@@ -9,9 +10,11 @@ from rest_framework.exceptions import (
 )
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from categories.models import Category
 from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
 from .models import Amenity, Room
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 
@@ -66,6 +69,9 @@ class AmenitiesDetail(APIView):
 
 
 class Rooms(APIView):
+    #  if user.id_authenticated 같은 코드줄 대신 사용가능
+    permission_classes = [IsAuthenticatedOrReadOnly]  # 권한 문제 해결
+
     def get(self, request):
         all_rooms = Room.objects.all()
         serializer = RoomListSerializer(
@@ -197,9 +203,11 @@ class RoomReviews(APIView):
         try:
             page = request.query_params.get("page", 1)  # ?page=3   <- 이 값을 받음
             page = int(page)
+            if page == 0:
+                page = 1
         except ValueError:
             page = 1
-        page_size = 3
+        page_size = settings.PAGE_SIZE
         start = (page - 1) * page_size
         end = start + page_size
         room = self.get_object(pk=pk)
@@ -211,3 +219,49 @@ class RoomReviews(APIView):
 
 
 # 리뷰말고 amenity 도 따로 개발하기 room/id/amenities
+class RoomAmenities(APIView):
+    def get_object(self, pk):
+        try:
+            room = Room.objects.get(pk=pk)
+            return room
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        try:
+            page = request.query_params.get("page", 1)
+            page = int(page)
+            if page == 0:
+                page = 1
+        except ValueError:
+            page = 1
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+        room = self.get_object(pk=pk)
+
+        amenities = room.amenities.all()[start:end]
+        serializer = AmenitySerializer(amenities, many=True)
+        return Response(serializer.data)
+
+
+class RoomPhotos(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def post(self, request, pk):
+        room = self.get_object(pk=pk)
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        if request.user != room.owner:
+            raise PermissionDenied  # 권한없을때 보내는 오류
+        serializer = PhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            photo = serializer.save(room=room)
+            serializer = PhotoSerializer(photo)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)

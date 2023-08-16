@@ -147,3 +147,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Auth 사용자 유저 커스텀
 AUTH_USER_MODEL = "users.User"
+
+# File Upload 파일 실제 위치
+MEDIA_ROOT = "uploads"
+
+# 이 URL에서 사람들이 서버에 업로드된 파일 찾음, 파일을 찾아가는 방법
+MEDIA_URL = "user-uploads/"
+
+
+# PAGE_SIZE (Paginator)
+PAGE_SIZE = 3
