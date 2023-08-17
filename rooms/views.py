@@ -1,5 +1,6 @@
 from django.db import transaction  # 모든 변경사항 중 1개 실패하면 전체 되돌리기
 from django.conf import settings  # Django settings.py 가져오기
+from django.utils import timezone  # Django 시간 타임존 사용하는법
 
 from rest_framework.views import APIView
 from rest_framework.exceptions import (
@@ -12,11 +13,15 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from categories.models import Category
-from reviews.serializers import ReviewSerializer
-from medias.serializers import PhotoSerializer
 from .models import Amenity, Room
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+
+from categories.models import Category
+from bookings.models import Booking
+
+from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
+from bookings.serialziers import PublicBookingSerializer, CreateRoomBookingSerializer
 
 
 # /api/v1/rooms/amenities
@@ -141,7 +146,6 @@ class RoomDetail(APIView):
 
     def put(self, request, pk):
         room = self.get_object(pk=pk)
-        print(request.data)
         if not request.user.is_authenticated:
             raise NotAuthenticated  # Auth 회원정보 관련 에러
         if room.owner != request.user:
@@ -192,6 +196,8 @@ class RoomDetail(APIView):
 
 
 class RoomReviews(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             room = Room.objects.get(pk=pk)
@@ -216,6 +222,18 @@ class RoomReviews(APIView):
         reviews = room.reviews.all()[start:end]  # model.py related_name 참조
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
+
+    def post(self, request, pk):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            review = serializer.save(
+                user=request.user,
+                room=self.get_object(pk=pk),
+            )
+            serializer = ReviewSerializer(review)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 
 # 리뷰말고 amenity 도 따로 개발하기 room/id/amenities
@@ -262,6 +280,46 @@ class RoomPhotos(APIView):
         if serializer.is_valid():
             photo = serializer.save(room=room)
             serializer = PhotoSerializer(photo)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class RoomBookings(APIView):
+    # login 안하면 read(get)만 가능
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        room = self.get_object(pk=pk)
+        now = timezone.localtime(timezone.now())  # 현재 서버 로컬 시간 측정
+        now = now.date()  # date 정보만 받기
+        bookings = Booking.objects.filter(
+            room=room,
+            kind=Booking.BookingKindChoices.ROOM,
+            check_in__gt=now,  # 현재시간보다 나중인것만 filter하기
+        )
+        # bookings = Booking.objects.filter(room__pk=pk) 같은 방법
+        serializer = PublicBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        room = self.get_object(pk=pk)
+        serializer = CreateRoomBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            # custom 1번 방법, 2번은 serializers.py 에서 validate 설정
+            # check_in = request.data.get("check_in")
+            booking = serializer.save(
+                room=room,
+                user=request.user,
+                kind=Booking.BookingKindChoices.ROOM,
+            )
+            serializer = PublicBookingSerializer(booking)
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
