@@ -4,7 +4,10 @@ from .models import Amenity, Room
 
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
-from reviews.serializers import ReviewSerializer
+
+# from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
+from wishlists.models import WishList
 
 
 class AmenitySerializer(serializers.ModelSerializer):
@@ -19,7 +22,7 @@ class AmenitySerializer(serializers.ModelSerializer):
 
 class RoomDetailSerializer(serializers.ModelSerializer):
     owner = TinyUserSerializer(read_only=True)
-    # amenities = AmenitySerializer(read_only=True, many=True)
+    amenities = AmenitySerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
 
     # 역접근자
@@ -28,6 +31,10 @@ class RoomDetailSerializer(serializers.ModelSerializer):
     # 사용할려면 get_{method}
     rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
+
+    # room이 위시리스트에 있는지 없는지 확인
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Room
@@ -42,13 +49,20 @@ class RoomDetailSerializer(serializers.ModelSerializer):
         request = self.context["request"]  # view 함수에서 context 받을수 있음
         return room.owner == request.user
 
+    def get_is_liked(self, room):
+        request = self.context["request"]
+        # exists() 있나 없나 True, False를 돌려줌
+        return WishList.objects.filter(user=request.user, rooms__pk=room.pk).exists()
+
     # def create(self, validated_data):  # 삭제예정 일부터 고장내기
     #     return
 
 
 class RoomListSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
-    is_owner = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField(read_only=True)
+
+    photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Room
@@ -60,6 +74,7 @@ class RoomListSerializer(serializers.ModelSerializer):
             "price",
             "rating",
             "is_owner",
+            "photos",
         )
         # depth = 1
 

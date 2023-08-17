@@ -141,7 +141,6 @@ class RoomDetail(APIView):
 
     def put(self, request, pk):
         room = self.get_object(pk=pk)
-        print(request.data)
         if not request.user.is_authenticated:
             raise NotAuthenticated  # Auth 회원정보 관련 에러
         if room.owner != request.user:
@@ -192,6 +191,8 @@ class RoomDetail(APIView):
 
 
 class RoomReviews(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             room = Room.objects.get(pk=pk)
@@ -216,6 +217,18 @@ class RoomReviews(APIView):
         reviews = room.reviews.all()[start:end]  # model.py related_name 참조
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
+
+    def post(self, request, pk):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            review = serializer.save(
+                user=request.user,
+                room=self.get_object(pk=pk),
+            )
+            serializer = ReviewSerializer(review)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 
 # 리뷰말고 amenity 도 따로 개발하기 room/id/amenities
