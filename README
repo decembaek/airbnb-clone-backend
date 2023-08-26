@@ -8,3 +8,15 @@ poetry init
 poetry add django 장고 추가 
 
 poetry shell 입력하면 가상환경 진입
+
+# CODE CHALLENGE 코드 챌린지
+EXPERIENCES API 제작하기
+GET POST /experiences [x]
+GET PUT DELETE /experiences/1 [x]
+GET /experiences/1/perks [x]
+
+GET POST /perks [x]
+GET PUT DELETE /perks/1 [x]
+
+GET POST /experiences/1/bookings [x]
+GET PUT DELETE /experiences/1/bookings/2 [x]

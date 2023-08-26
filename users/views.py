@@ -1,3 +1,6 @@
+# 로그인 관련 호출 login
+from django.contrib.auth import authenticate, login, logout
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -81,3 +84,33 @@ class ChangePassword(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# 로그인때 사용하는 로직
+class LogIn(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            raise ParseError
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+        if user:
+            login(request, user)
+            return Response({"ok": "welcome"})
+        else:
+            return Response({"error": "비밀번호가 틀렸습니다."})
+
+
+# LogOut 만들기 로그아웃 함수
+
+
+class LogOut(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)
+        return Response({"ok": "로그아웃 되었습니다"})

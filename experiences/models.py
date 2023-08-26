@@ -25,6 +25,7 @@ class Experience(CommonModel):
     description = models.TextField()
     perks = models.ManyToManyField(
         "experiences.Perk",
+        related_name="perks",
     )
     category = models.ForeignKey(
         "categories.Category",
