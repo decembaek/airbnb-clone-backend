@@ -1,5 +1,6 @@
 # 로그인 관련 호출 login
 from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated  # 권한
 
 from . import serializers
 from .models import User
+
+import jwt
 
 
 class Me(APIView):
@@ -114,3 +117,29 @@ class LogOut(APIView):
     def post(self, request):
         logout(request)
         return Response({"ok": "로그아웃 되었습니다"})
+
+
+# install pyjwt 설치하기 JWT 로직
+class JWTLogIn(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            raise ParseError
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+        if user:
+            # 유저가 토큰을 볼수있으니 중요한 정보는 넣으면 안됌
+            # 대신 수정은 불가능함
+            # 토큰 암호화
+            token = jwt.encode(
+                {"pk": user.pk},
+                settings.SECRET_KEY,  # 비밀키 (서명)
+                algorithm="HS256",  # 업계 표준 암호화
+            )
+            return Response({"token": token})
+        else:
+            return Response({"error": "비밀번호가 틀렸습니다."})

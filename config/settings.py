@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# 개발환경에서만 사용 실제 서비스에선 비밀키를 제작해야함
 SECRET_KEY = "django-insecure-w__whgk$+cekawsedz*g*%0s&_$vcw&*sett!u2v8ym#$p(n_="
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -32,6 +33,8 @@ ALLOWED_HOSTS = []
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    # Auth Token 토큰을 구현하기 위한 코드
+    "rest_framework.authtoken",
 ]
 
 
@@ -157,3 +160,18 @@ MEDIA_URL = "user-uploads/"
 
 # PAGE_SIZE (Paginator)
 PAGE_SIZE = 3
+
+# REST Framework 로그인 유저 설정 기본값
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # Basic 아무도 안씀 공부하느라 일단 코드 작성, 모달창 로그인 방식
+        # "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        # 로그인 Permission 공부를 위한 인증 로직 추가 authentication.py
+        "config.authentication.TrustMeBroAuthentication",
+        # Auth Token 토큰을 구현하기 위한 코드
+        "rest_framework.authentication.TokenAuthentication",
+        # JWT 구현하기 config.authentication 구현
+        "config.authentication.JWTAuthentication",
+    ]
+}
