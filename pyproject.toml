@@ -17,6 +17,7 @@ markdown = "^3.4.3"
 django-filter = "^23.2"
 black = "^23.7.0"
 pyjwt = "^2.8.0"
+django-environ = "^0.10.0"
 
 
 [tool.poetry.group.dev.dependencies]

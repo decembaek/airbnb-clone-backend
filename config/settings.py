@@ -12,16 +12,25 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+import os
+
+# 시크릿 키 숨기기 django-environ
+import environ
+
+env = environ.Env()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+# environ.Env.read_env(f"{BASE_DIR}/.env")
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# 개발환경에서만 사용 실제 서비스에선 비밀키를 제작해야함
-SECRET_KEY = "django-insecure-w__whgk$+cekawsedz*g*%0s&_$vcw&*sett!u2v8ym#$p(n_="
+# 개발환경에서만 사용 실제 서비스에선 비밀키를 제작해야함 .env
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -173,5 +182,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
         # JWT 구현하기 config.authentication 구현
         "config.authentication.JWTAuthentication",
+        # simple JWT 또는 Django rest knox 사용하기 (구현이 귀찮을시)
     ]
 }
