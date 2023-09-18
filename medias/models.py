@@ -25,8 +25,8 @@ class Photo(CommonModel):
         related_name="photos",
     )
 
-    def __str__(self) -> str:
-        return "Photo File"
+    def __str__(self):
+        return f"{self.room} | {self.experience} file"
 
 
 class Video(CommonModel):
