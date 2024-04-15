@@ -15,5 +15,6 @@ urlpatterns = [
     path("token-login", obtain_auth_token),  # 데이터 베이스를 사용하기 떄문에 무거워짐
     # install pyjwt 설치하기
     path("jwt-login", views.JWTLogIn.as_view()),
+    path("github", views.GithubLogIn.as_view()),
     path("@<str:username>", views.PublicUser.as_view()),
 ]
