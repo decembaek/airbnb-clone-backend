@@ -118,9 +118,12 @@ class Rooms(APIView):
                         # except Amenity.DoesNotExist:
                         #     pass
                         #  raise ParseError(f"Amenity with id {amenity_pk} not found")
-                        serializer = RoomDetailSerializer(room)
+                        serializer = RoomDetailSerializer(
+                            room, context={"request": request}
+                        )
                         return Response(serializer.data)
-                except Exception:
+                except Exception as e:
+                    print(e)
                     raise ParseError("Amenity not found")
             else:
                 return Response(serializer.errors)

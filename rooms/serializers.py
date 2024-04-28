@@ -15,6 +15,7 @@ class AmenitySerializer(serializers.ModelSerializer):
         model = Amenity
         # fields = "__all__"
         fields = (
+            "pk",
             "name",
             "description",
         )
@@ -46,16 +47,19 @@ class RoomDetailSerializer(serializers.ModelSerializer):
         return room.rating()  # def rating -> Room 모델에 정의한 함수
 
     def get_is_owner(self, room):
-        request = self.context["request"]  # view 함수에서 context 받을수 있음
-        return room.owner == request.user
+        request = self.context.get("request")  # view 함수에서 context 받을수 있음
+        if request:
+            return room.owner == request.user
+        return False
 
     def get_is_liked(self, room):
-        request = self.context["request"]
-        if request.user.is_authenticated:
-            # exists() 있나 없나 True, False를 돌려줌
-            return WishList.objects.filter(
-                user=request.user, rooms__pk=room.pk
-            ).exists()
+        request = self.context.get("request")
+        if request:
+            if request.user.is_authenticated:
+                # exists() 있나 없나 True, False를 돌려줌
+                return WishList.objects.filter(
+                    user=request.user, rooms__pk=room.pk
+                ).exists()
         return False
 
     # def create(self, validated_data):  # 삭제예정 일부터 고장내기

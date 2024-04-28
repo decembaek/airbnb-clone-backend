@@ -50,9 +50,10 @@ class Users(APIView):
             user.set_password(password)
             user.save()
             serializer = serializers.PrivateUserSerializer(user)
-            return Response(serializer.data)
+            return Response(status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors)
+            print(serializer.errors)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class PublicUser(APIView):
@@ -106,7 +107,9 @@ class LogIn(APIView):
             login(request, user)
             return Response({"ok": "welcome"})
         else:
-            return Response({"error": "비밀번호가 틀렸습니다."})
+            return Response(
+                {"error": "비밀번호가 틀렸습니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 # LogOut 만들기 로그아웃 함수
@@ -188,6 +191,51 @@ class GithubLogIn(APIView):
                     avatar=user_data.get("avatar_url"),
                 )
                 # set_unusable_password 패스워드 설정 X, 깃허브로만 로그인 가능
+                user.set_unusable_password()
+                user.save()
+                login(request=request, user=user)
+                return Response(status=status.HTTP_200_OK)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class KakaoLogIn(APIView):
+    def post(self, request):
+        try:
+            code = request.data.get("code")
+            access_token = requests.post(
+                "https://kauth.kakao.com/oauth/token",
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": "1bb5a78959b5f59b1b5a144d30a816b4",
+                    "redirect_uri": "http://localhost:3001/social/kakao",
+                    "code": code,
+                },
+            )
+            access_token = access_token.json().get("access_token")
+            user_data = requests.get(
+                "https://kapi.kakao.com/v2/user/me",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+                },
+            )
+            user_data = user_data.json()
+            kakao_account = user_data.get("kakao_account")
+            profile = kakao_account.get("profile")
+            try:
+                user = User.objects.get(email=kakao_account.get("email"))
+                login(request=request, user=user)
+                return Response(status=status.HTTP_200_ok)
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    email=kakao_account.get("email"),
+                    username=profile.get("nickname"),
+                    avatar=profile.get("profile_image_url"),
+                )
                 user.set_unusable_password()
                 user.save()
                 login(request=request, user=user)

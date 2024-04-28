@@ -6,8 +6,9 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
 
-        #보여줄 필드    __all__ 할시 전부 공개
+        # 보여줄 필드    __all__ 할시 전부 공개
         fields = (
+            "pk",
             "name",
             "kind",
         )
