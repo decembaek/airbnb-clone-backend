@@ -209,3 +209,5 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 GH_SECRET = env("GH_SECRET")
+CF_ID = env("CF_ID")
+CF_TOKEN = env("CF_TOKEN")
